@@ -1,0 +1,11 @@
+python-dotenv
+PyYAML
+gitpython
+autogen-agentchat
+autogen-ext
+autogen-core
+tiktoken
+openai
+asyncio
+
+

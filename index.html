@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My AI Agent Frontend</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Segoe UI", sans-serif;
+      background: #f5f7fa;
+      color: #333;
+    }
+    header {
+      background: #4f46e5;
+      color: white;
+      padding: 1rem 2rem;
+      text-align: center;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 1.8rem;
+    }
+    .container {
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 1.5rem;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    .chat-box {
+      height: 400px;
+      overflow-y: auto;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      background: #fafafa;
+    }
+    .message {
+      margin: 0.5rem 0;
+      padding: 0.7rem 1rem;
+      border-radius: 8px;
+      max-width: 75%;
+      line-height: 1.4;
+    }
+    .user {
+      background: #4f46e5;
+      color: white;
+      margin-left: auto;
+      text-align: right;
+    }
+    .bot {
+      background: #e5e7eb;
+      color: #111;
+      margin-right: auto;
+      text-align: left;
+    }
+    .input-area {
+      display: flex;
+      gap: 10px;
+    }
+    input {
+      flex: 1;
+      padding: 0.8rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+    button {
+      padding: 0.8rem 1.2rem;
+      border: none;
+      background: #4f46e5;
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background: #4338ca;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>AI Agent Chat</h1>
+  </header>
+  <div class="container">
+    <div class="chat-box" id="chatBox">
+      <div class="message bot">👋 Hello! I’m your AI Agent. How can I help you today?</div>
+    </div>
+    <div class="input-area">
+      <input type="text" id="userInput" placeholder="Type your message...">
+      <button onclick="sendMessage()">Send</button>
+    </div>
+  </div>
+  <script>
+    const chatBox = document.getElementById("chatBox");
+    const userInput = document.getElementById("userInput");
+
+    async function sendMessage() {
+      const text = userInput.value.trim();
+      if (!text) return;
+
+      // User message
+      const userMsg = document.createElement("div");
+      userMsg.classList.add("message", "user");
+      userMsg.innerText = text;
+      chatBox.appendChild(userMsg);
+      userInput.value = "";
+
+      // Send to backend
+      try {
+        const response = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: text })
+        });
+        const data = await response.json();
+        const botMsg = document.createElement("div");
+        botMsg.classList.add("message", "bot");
+        botMsg.innerText = data.bot_response;
+        chatBox.appendChild(botMsg);
+      } catch (error) {
+        const botMsg = document.createElement("div");
+        botMsg.classList.add("message", "bot");
+        botMsg.innerText = "Error: Could not reach backend.";
+        chatBox.appendChild(botMsg);
+      }
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    async function fetchChatHistory() {
+      try {
+        const response = await fetch("/api/chat");
+        const data = await response.json();
+        data.messages.forEach(msg => {
+          const msgDiv = document.createElement("div");
+          msgDiv.classList.add("message", msg.role);
+          msgDiv.innerText = msg.content;
+          chatBox.appendChild(msgDiv);
+        });
+        chatBox.scrollTop = chatBox.scrollHeight;
+      } catch (error) {
+        console.error("Failed to fetch chat history:", error);
+      }
+    }
+
+    // Load chat history on page load
+    document.addEventListener("DOMContentLoaded", fetchChatHistory);
+
+    // Send message on Enter key
+    userInput.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") sendMessage();
+    });
+  </script>
+</body>
+</html>
