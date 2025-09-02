@@ -42,7 +42,7 @@ Requirements:
 2. It should checkout code from GitHub.
 3. Run a simple shell step that ensures index.html exists.
 4. Push changes to GitHub main branch.
-Return only valid YAML content (no markdown).
+Return only valid YAML content. Do NOT add any extra words like TERMINATE or END.
 """
 
 # --- Initialize Agent ---
@@ -60,6 +60,14 @@ async def main():
     # --- Clean code fences ---
     pipeline_text = re.sub(r"```[a-zA-Z]*", "", pipeline_text)
     pipeline_text = pipeline_text.replace("```", "").strip()
+
+    # --- Remove invalid YAML lines like TERMINATE, END, STOP ---
+    valid_lines = []
+    for line in pipeline_text.splitlines():
+        stripped = line.strip()
+        if stripped and stripped not in {"TERMINATE", "END", "STOP"}:
+            valid_lines.append(line)
+    pipeline_text = "\n".join(valid_lines)
 
     # --- Validate YAML ---
     try:
