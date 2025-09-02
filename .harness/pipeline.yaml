@@ -1,0 +1,40 @@
+pipeline:
+  name: Deploy_Static_HTML_Site
+  identifier: DeployStaticHTMLSite
+  stages:
+    - stage:
+        name: BuildAndDeploy
+        identifier: BuildAndDeploy
+        type: Build
+        spec:
+          cloneCodebase: true
+          execution:
+            steps:
+              - step:
+                  name: Checkout Code
+                  identifier: CheckoutCode
+                  type: GitClone
+                  spec:
+                    connectorRef: GitHub
+                    repoName: your-repo-name
+                    branchName: main
+              - step:
+                  name: Ensure index.html Exists
+                  identifier: EnsureIndexHtmlExists
+                  type: ShellScript
+                  spec:
+                    shell: Bash
+                    command: |
+                      if [ ! -f index.html ]; then
+                        echo "index.html not found"
+                        exit 1
+                      fi
+              - step:
+                  name: Push Changes to GitHub
+                  identifier: PushChangesToGitHub
+                  type: GitOps
+                  spec:
+                    action: Push
+                    connectorRef: GitHub
+                    branch: main
+                    commitMessage: "Push changes after build"
