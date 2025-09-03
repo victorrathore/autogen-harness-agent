@@ -1,8 +1,8 @@
 pipeline:
   name: Deploy Static HTML Site
   identifier: Deploy_Static_HTML_Site
-  projectIdentifier: YourProjectIdentifier
-  orgIdentifier: YourOrgIdentifier
+  projectIdentifier: autogen-project
+  orgIdentifier: default
   stages:
     - stage:
         name: Build and Deploy
@@ -16,8 +16,8 @@ pipeline:
                   identifier: Checkout_Code
                   type: GitOps
                   spec:
-                    connectorRef: GitHubConnector
-                    repositoryName: YourRepoName
+                    connectorRef: github_connector
+                    repositoryName: autogen-harness-agent
                     branch: main
               - step:
                   name: Verify index.html
@@ -37,7 +37,7 @@ pipeline:
                   identifier: Push_Changes
                   type: GitOps
                   spec:
-                    connectorRef: GitHubConnector
-                    repositoryName: YourRepoName
+                    connectorRef: github_connector
+                    repositoryName: autogen-harness-agent
                     branch: main
                     commitMessage: "Automated deployment of static HTML site"
