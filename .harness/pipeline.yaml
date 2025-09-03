@@ -1,9 +1,16 @@
 pipeline:
+<<<<<<< HEAD
   name: Autogen Site Deployment
   identifier: Autogen_Site_Deployment
   projectIdentifier: autogen-project
   orgIdentifier: default
   tags: {}
+=======
+  name: Deploy Static HTML Site
+  identifier: Deploy_Static_HTML_Site
+  projectIdentifier: autogen-project
+  orgIdentifier: default
+>>>>>>> 0fb78b0bfbde643b2f52b1190a22ef9219af9bd3
   stages:
     - stage:
         name: Build and Deploy
@@ -18,16 +25,23 @@ pipeline:
                   identifier: Checkout_Code
                   type: GitOps
                   spec:
+<<<<<<< HEAD
                     connectorRef: github_connector      # aapka GitHub connector
                     repoName: autogen-harness-agent           # aapka GitHub repo name
 
               # Step 2: Deploy Static HTML
+=======
+                    connectorRef: github_connector
+                    repositoryName: autogen-harness-agent
+                    branch: main
+>>>>>>> 0fb78b0bfbde643b2f52b1190a22ef9219af9bd3
               - step:
                   name: Deploy Static HTML
                   identifier: Deploy_HTML
                   type: ShellScript
                   spec:
                     shell: Bash
+<<<<<<< HEAD
                     onDelegate: true
                     source:
                       type: Inline
@@ -49,3 +63,21 @@ pipeline:
                           chmod -R 755 $DEPLOY_DIR
                           
                           echo "Deployment completed successfully!"
+=======
+                    command: |
+                      if [ ! -f ./index.html ]; then
+                        echo "Error: index.html does not exist!"
+                        exit 1
+                      else
+                        echo "index.html exists."
+                      fi
+              - step:
+                  name: Push Changes
+                  identifier: Push_Changes
+                  type: GitOps
+                  spec:
+                    connectorRef: github_connector
+                    repositoryName: autogen-harness-agent
+                    branch: main
+                    commitMessage: "Automated deployment of static HTML site"
+>>>>>>> 0fb78b0bfbde643b2f52b1190a22ef9219af9bd3
