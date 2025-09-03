@@ -1,8 +1,9 @@
 pipeline:
-  name: Deploy Static HTML Site
-  identifier: Deploy_Static_HTML_Site
-  projectIdentifier: YourProjectIdentifier
-  orgIdentifier: YourOrgIdentifier
+  name: Autogen Site Deployment
+  identifier: Autogen_Site_Deployment
+  projectIdentifier: autogen-project
+  orgIdentifier: default
+  tags: {}
   stages:
     - stage:
         name: Build and Deploy
@@ -11,33 +12,40 @@ pipeline:
         spec:
           execution:
             steps:
+              # Step 1: Checkout Code from GitHub
               - step:
                   name: Checkout Code
                   identifier: Checkout_Code
                   type: GitOps
                   spec:
-                    connectorRef: GitHubConnector
-                    repositoryName: YourRepoName
-                    branch: main
+                    connectorRef: github_connector      # aapka GitHub connector
+                    repoName: autogen-harness-agent           # aapka GitHub repo name
+
+              # Step 2: Deploy Static HTML
               - step:
-                  name: Verify index.html
-                  identifier: Verify_Index_HTML
+                  name: Deploy Static HTML
+                  identifier: Deploy_HTML
                   type: ShellScript
                   spec:
                     shell: Bash
-                    command: |
-                      if [ ! -f ./index.html ]; then
-                        echo "Error: index.html does not exist!"
-                        exit 1
-                      else
-                        echo "index.html exists."
-                      fi
-              - step:
-                  name: Push Changes
-                  identifier: Push_Changes
-                  type: GitOps
-                  spec:
-                    connectorRef: GitHubConnector
-                    repositoryName: YourRepoName
-                    branch: main
-                    commitMessage: "Automated deployment of static HTML site"
+                    onDelegate: true
+                    source:
+                      type: Inline
+                      spec:
+                        script: |
+                          echo "Deploying static HTML site..."
+                          
+                          # Deployment directory on delegate/server
+                          DEPLOY_DIR="/var/www/html/autogen-harness-agent"
+                          
+                          # Create directory if it doesn't exist
+                          mkdir -p $DEPLOY_DIR
+                          
+                          # Pull latest code from GitHub
+                          git clone https://github.com/victorrathore/autogen-harness-agent.git $DEPLOY_DIR || \
+                          (cd $DEPLOY_DIR && git pull)
+                          
+                          # Optional: set permissions
+                          chmod -R 755 $DEPLOY_DIR
+                          
+                          echo "Deployment completed successfully!"
