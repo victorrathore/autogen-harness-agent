@@ -1,40 +1,43 @@
 pipeline:
-  name: Deploy_Static_HTML_Site
-  identifier: DeployStaticHTMLSite
+  name: Deploy Static HTML Site
+  identifier: Deploy_Static_HTML_Site
+  projectIdentifier: YourProjectIdentifier
+  orgIdentifier: YourOrgIdentifier
   stages:
     - stage:
-        name: BuildAndDeploy
-        identifier: BuildAndDeploy
-        type: Build
+        name: Build and Deploy
+        identifier: Build_Deploy
+        type: Custom
         spec:
-          cloneCodebase: true
           execution:
             steps:
               - step:
                   name: Checkout Code
-                  identifier: CheckoutCode
-                  type: GitClone
+                  identifier: Checkout_Code
+                  type: GitOps
                   spec:
-                    connectorRef: GitHub
-                    repoName: your-repo-name
-                    branchName: main
+                    connectorRef: GitHubConnector
+                    repositoryName: YourRepoName
+                    branch: main
               - step:
-                  name: Ensure index.html Exists
-                  identifier: EnsureIndexHtmlExists
+                  name: Verify index.html
+                  identifier: Verify_Index_HTML
                   type: ShellScript
                   spec:
                     shell: Bash
                     command: |
-                      if [ ! -f index.html ]; then
-                        echo "index.html not found"
+                      if [ ! -f ./index.html ]; then
+                        echo "Error: index.html does not exist!"
                         exit 1
+                      else
+                        echo "index.html exists."
                       fi
               - step:
-                  name: Push Changes to GitHub
-                  identifier: PushChangesToGitHub
+                  name: Push Changes
+                  identifier: Push_Changes
                   type: GitOps
                   spec:
-                    action: Push
-                    connectorRef: GitHub
+                    connectorRef: GitHubConnector
+                    repositoryName: YourRepoName
                     branch: main
-                    commitMessage: "Push changes after build"
+                    commitMessage: "Automated deployment of static HTML site"
